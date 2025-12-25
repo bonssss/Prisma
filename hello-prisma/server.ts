@@ -90,6 +90,37 @@ app.delete('/users/:id', async (req,res)=>{
 
 })
 
+app.put('/users/:id', async (req,res)=>{
+    const {id} = req.params;
+    const{name,email}= req.body;
+    try{
+        const user = await prisma.user.findUnique({
+            where:{
+                id:Number(id)
+            }
+        })
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const updateUser = await prisma.user.update({
+            where:{
+                id:Number(id)
+            },
+            data:{
+                name,
+                email,
+            }
+        })
+     
+        res.status(200).json({message:"User updated successfully"})
+        
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+})
+
 app.listen(3333, () => {
     console.log('Server running on port 3333');
 });
