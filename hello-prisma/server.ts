@@ -63,6 +63,32 @@ app.get('/users/:id', async (req, res)=>{
     res.json(user);
 })
 
+app.delete('/users/:id', async (req,res)=>{
+    const {id} = req.params;
+    try{
+        const user = await prisma.user.findUnique({
+            where:{
+                id:Number(id)
+            }
+        })
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const deleteUser = await prisma.user.delete({
+            where:{
+                id:Number(id)
+            }
+        })
+     
+        res.status(200).json({message:"User deleted successfully"})
+        
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+
+})
 
 app.listen(3333, () => {
     console.log('Server running on port 3333');
