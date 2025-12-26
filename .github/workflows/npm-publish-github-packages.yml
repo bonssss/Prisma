@@ -3,7 +3,6 @@
 
 name: Node.js CI/CD
 
-# Trigger workflow only when master is updated (merge from dev)
 on:
   push:
     branches:
@@ -26,15 +25,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('hello-prisma/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./hello-prisma
 
       - name: Run tests
         run: npm test
+        working-directory: ./hello-prisma
 
   # 2️⃣ Publish package
   publish-gpr:
@@ -57,14 +58,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('hello-prisma/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./hello-prisma
 
       - name: Publish package
         run: npm publish
+        working-directory: ./hello-prisma
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
