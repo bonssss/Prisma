@@ -14,11 +14,20 @@ datasource db {
 }
 
 
-
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  name      String
-  password  String @default("password") 
+  password  String
+  profile   Profile?
   createdAt DateTime @default(now())
 }
+
+model Profile {
+  id        Int    @id @default(autoincrement())
+  userId    Int    @unique
+  firstName String?
+  lastName  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

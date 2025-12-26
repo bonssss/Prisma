@@ -65,21 +65,88 @@ export const loginUser = async (req:Request, res:Response) => {
 
 
 
-export const getUserProfile = async (req: any, res: any) => {
-  const user = await prisma.user.findUnique({
-    where: { id: Number(req.userId) },
+// export const getUserProfile = async (req: any, res: any) => {
+//   const user = await prisma.user.findUnique({
+//     where: { id: Number(req.userId) },
 
-    select: { id: true, email: true, name: true },
-  });
 
-  res.json(user);
+//     select: { id: true, email: true, name: true },
+//   });
+
+//   res.json(user);
+// }
+
+// export const updateProfile = async (req: any, res: any) => {
+//     const { name, email } = req.body;
+//     const user = await prisma.user.update({
+//         where: { id: Number(req.userId) },
+//         data: { name, email },
+//     });
+//     res.json(user);
+// }
+export const createProfile = async (req: any, res: any) => {
+  const { firstName, lastName } = req.body;
+
+  if (!firstName || !lastName) {
+    return res.status(400).json({ error: 'Missing firstName or lastName' });
+  }
+
+  try {
+    const profile = await prisma.profile.create({
+      data: {
+        firstName,
+        lastName,
+        user: {
+          connect: { id: Number(req.userId) }, // connect authenticated user
+        },
+      },
+    });
+
+    res.json(profile);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getUserProfile = async (req:any,res:any)=>{
+    try {
+        const profile = await prisma.profile.findUnique({
+            where:{
+                userId:Number(req.userId)
+            }
+        })
+        if(!profile){
+            return res.status(404).json({error:'Profile not found'})
+        }
+        res.json(profile)
+        
+    } catch (error:any) {
+        res.status(500).json({error:error.message})
+        
+    }
 }
 
-export const updateProfile = async (req: any, res: any) => {
-    const { name, email } = req.body;
-    const user = await prisma.user.update({
-        where: { id: Number(req.userId) },
-        data: { name, email },
-    });
-    res.json(user);
+
+export const updateProfile = async (req:any,res:any)=>{
+    const {firstName,lastName} = req.body;
+    if(!firstName || !lastName){
+        return res.status(400).json({error:'Missing firstName or lastName'})
+    }
+    try {
+        const profile = await prisma.profile.update({
+            where:{
+                userId:Number(req.userId)
+            },
+            data:{
+                firstName,
+                lastName
+            }
+        })
+        res.json(profile)
+        
+    } catch (error:any) {
+        res.status(500).json({error:error.message})
+        
+    }
+    
 }
