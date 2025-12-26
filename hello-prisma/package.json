@@ -4,8 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-     "test": "echo \"No tests yet\""
-    // "test": "echo \"Error: no test specified\" && exit 1",
+     "test": "echo \"No tests yet\"",
     "dev": "nodemon  --exec tsx src/server.ts"
   },
   "keywords": [],
