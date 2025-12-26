@@ -42,7 +42,7 @@ jobs:
           fi
         working-directory: ./hello-prisma
 
-  # 2️⃣ Publish package
+  # 2️⃣ Publish to GitHub Packages
   publish-gpr:
     needs: build
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
         run: npm ci
         working-directory: ./hello-prisma
 
-      - name: Publish package
+      - name: Publish package to GitHub Packages
         run: npm publish
         working-directory: ./hello-prisma
         env:
