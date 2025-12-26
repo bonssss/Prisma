@@ -150,3 +150,19 @@ export const updateProfile = async (req:any,res:any)=>{
     }
     
 }
+
+export const deleteProfile = async (req:any,res:any)=>{
+    try {
+        const profile = await prisma.profile.delete({
+            where:{
+                userId:Number(req.userId)
+            }
+        })
+        res.status(200).json({message:'Profile deleted successfully'})
+        
+    } catch (error:any) {
+        res.status(500).json({error:error.message})
+        
+    }
+    
+}
