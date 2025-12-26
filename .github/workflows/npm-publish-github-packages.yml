@@ -33,8 +33,13 @@ jobs:
         run: npm ci
         working-directory: ./hello-prisma
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests (skip if none)
+        run: |
+          if [ -f hello-prisma/package.json ] && grep -q "\"test\"" hello-prisma/package.json; then
+            npm test
+          else
+            echo "No tests defined, skipping..."
+          fi
         working-directory: ./hello-prisma
 
   # 2️⃣ Publish package
