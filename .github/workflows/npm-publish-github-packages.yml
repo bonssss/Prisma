@@ -5,22 +5,26 @@ name: Node.js CI/CD
 
 on:
   push:
+    # Trigger only when dev is merged into master
     branches:
       - master
 
 jobs:
-  # 1️⃣ Build & Test
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://npm.pkg.github.com/
 
+      # 3️⃣ Cache npm
       - name: Cache npm
         uses: actions/cache@v3
         with:
@@ -29,11 +33,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      # 4️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci
         working-directory: ./hello-prisma
 
-      - name: Run tests (skip if none)
+      # 5️⃣ Run tests (skip if none)
+      - name: Run tests
         run: |
           if [ -f hello-prisma/package.json ] && grep -q "\"test\"" hello-prisma/package.json; then
             npm test
@@ -42,36 +48,22 @@ jobs:
           fi
         working-directory: ./hello-prisma
 
-  # 2️⃣ Publish to GitHub Packages
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('hello-prisma/**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm ci
+      # 6️⃣ Bump patch version
+      - name: Bump version
+        run: |
+          npm version patch -m "ci: bump version to %s [skip ci]"
         working-directory: ./hello-prisma
 
-      - name: Publish package to GitHub Packages
+      # 7️⃣ Push version commit & tag
+      - name: Push version commit
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
+          force: false
+
+      # 8️⃣ Publish to GitHub Packages
+      - name: Publish package
         run: npm publish
         working-directory: ./hello-prisma
         env:
